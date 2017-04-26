@@ -16,12 +16,16 @@ import {
   View
 } from 'react-native';
 
+import api from './utilities/api';
+
+
 const onButtonPress = () => {
   Alert.alert('Button has been pressed!');
 };
 
 
  class AutoJeeves extends React.Component {
+   
  render() {
         return (
             <Navigator
@@ -66,9 +70,31 @@ class HomeScreen extends React.Component{
   }
 }
 class CarScreen extends React.Component{
-  
-  
+   constructor(props){
+        super(props);
+        this.state = {
+            makes: [],
+            makeName: ''
+            
+        }
+    }
+    componentWillMount(){
+        api.getMakes().then((res) => {
+            this.setState({
+                makes: res.makes,
+                makeName: res.makes[0].name
+            })
+        });
+    }
+   
+   
   render() {
+        console.log("Makes: ", this.state.makes);
+        var data = this.state.makes.map(function(item) {
+        return <Text> {item.id}{item.name}</Text>;
+        });
+
+   
     return (
        <View style={styles.container}>
         <Text style={styles.welcome}>
@@ -77,6 +103,8 @@ class CarScreen extends React.Component{
         <Text style={styles.instructions}>
           Learn everything you need to know about your car's maintenance needs.
         </Text>
+        
+        {data}
       
           
       </View>
