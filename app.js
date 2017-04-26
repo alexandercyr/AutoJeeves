@@ -4,11 +4,7 @@
  * @flow
  */
 
-import React from 'react';
-import {
-  StackNavigator
-} from 'react-navigation';
-
+import React, { Component } from 'react';
 import {
   AppRegistry,
   StyleSheet,
@@ -16,13 +12,43 @@ import {
   Button,
   Alert,
   Navigator,
+  TouchableHighlight,
   View
 } from 'react-native';
 
+const onButtonPress = () => {
+  Alert.alert('Button has been pressed!');
+};
+
+
+ class AutoJeeves extends React.Component {
+ render() {
+        return (
+            <Navigator
+                initialRoute={{name: 'HomeScreen', component: HomeScreen}}
+                configureScene={() => {
+                    return Navigator.SceneConfigs.FloatFromRight;
+                }}
+                renderScene={(route, navigator) => {
+                    // count the number of func calls
+                    console.log(route, navigator); 
+
+                    if (route.component) {
+                        return React.createElement(route.component, { navigator });
+                    }
+                }}
+             />
+        );
+    }
+}
 class HomeScreen extends React.Component{
-  static navigationOptions = {
-    title: 'Welcome',
-  };
+  
+  onPressFeed() {
+        this.props.navigator.push({
+            name: 'CarScreen',
+            component: CarScreen
+        });
+    }
   render() {
     return (
        <View style={styles.container}>
@@ -32,43 +58,31 @@ class HomeScreen extends React.Component{
         <Text style={styles.instructions}>
           Learn everything you need to know about your car's maintenance needs.
         </Text>
-        <Button
-          onPress={() => this.props.navigation.navigate('Car')}
-          title="Get Started"
+       <Button title ="Get Started!" onPress={this.onPressFeed.bind(this)}    
         />
           
       </View>
     );
   }
 }
-
 class CarScreen extends React.Component{
-  static navigationOptions = {
-    title: 'Car Selection',
-  };
-  render(){
-
+  
+  
+  render() {
     return (
        <View style={styles.container}>
         <Text style={styles.welcome}>
-          Welcome to Auto Jeeves!
+         Car Screen
         </Text>
         <Text style={styles.instructions}>
           Learn everything you need to know about your car's maintenance needs.
         </Text>
-        
+      
           
       </View>
     );
   }
 }
-
-
-const AutoJeeves = StackNavigator({
-  Home: { screen: HomeScreen },
-  Car: { screen: CarScreen },
-});
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
