@@ -13,6 +13,7 @@ import {
   Button,
   Alert,
   Navigator,
+  ScrollView,
   Picker,
   TouchableHighlight,
   View
@@ -25,6 +26,7 @@ const onButtonPress = () => {
   Alert.alert('Button has been pressed!');
 };
 
+var _ = require('lodash');
 
  class AutoJeeves extends React.Component {
    
@@ -78,7 +80,7 @@ class CarScreen extends React.Component{
         this.props.navigator.push({
             name: 'MaintenanceScreen',
             component: MaintenanceScreen,
-            passProps: { modelID: this.state.year, make: this.state.makeName, model: this.state.modelName },
+            passProps: { modelID: this.state.year, make: this.state.makeName, model: this.state.modelName, year: this.state.yearLabel },
         });
     }
    
@@ -89,6 +91,7 @@ class CarScreen extends React.Component{
     modelIndex: 0,
     year: 0,
     yearInt: 0,
+    yearLabel: 0,
     modelName: ''
     
   };
@@ -129,10 +132,11 @@ class CarScreen extends React.Component{
         var cars = this.state.makes
         var models = this.state.models
         var modelIndex = this.state.modelIndex
+        var yearsArray = this.state.years
         
         var yearsData =  this.state.years.map(function(years, i) {
             var intString = (years.year).toString()
-            return <Picker.Item key={i} value={years.id} label={intString} />;
+            return <Picker.Item key={i} value={i} label={intString} />;
   });
                 console.log(this.state.year)
                 console.log(this.state.makeName)
@@ -182,7 +186,7 @@ class CarScreen extends React.Component{
       <Picker
   style={styles.picker}
             selectedValue={this.state.yearInt}
-            onValueChange={ (years) => ( this .setState({year: years, yearInt: years}) ) }
+            onValueChange={ (years) => ( this .setState({year: yearsArray[years].id, yearInt: years, yearLabel: yearsArray[years].year}) ) }
             >
        {yearsData}
       </Picker>
@@ -223,6 +227,8 @@ class MaintenanceScreen extends React.Component{
            make: props.route.passProps.make,
         model: props.route.passProps.model,
         modelID: props.route.passProps.modelID,
+                year: props.route.passProps.year,
+
             
         }
     }
@@ -239,25 +245,39 @@ class MaintenanceScreen extends React.Component{
             })
         });
     }
-    renderScene(route, navigator) {
-  switch (route.id) {
-    case 'home':
-    return <Home navigator={navigator} {... route.props} />;
-  }
-}
+  
     
   render() {
-     var makeData = this.state.actions.map(function(item) {
-        return <Text> {item.action}{item.item}</Text>;
+    console.log(this.state.actions)
+    var sortedActions = _.sortBy(this.state.actions, [function(o) { return o.intervalMileage; }]);
+    console.log(sortedActions)
+        //code
+   
+     var makeData = sortedActions.map(function(item, i) {
+        
+            var string = "every " + item.intervalMileage + " miles";
+            if (item.intervalMonth) {
+                string = string +" or every "+ item.intervalMonth + " months";
+            }
+        
+        return <Text key={i} style={styles.scrollItem}>{item.action} {item.item} {string}.</Text>;
         });
+      
     return (
        <View style={styles.container}>
-        <Text style={styles.welcome}>
-          {makeData}
+       <Text style={styles.carInstructions}>
+Car Data For:
+</Text>
+        <Text style={styles.carName}>
+          {this.state.make} - {this.state.model} {this.state.year}
         </Text>
-        <Text style={styles.instructions}>
-          Learn everything you need to know about your car's maintenance needs.
-        </Text>
+        <ScrollView
+        automaticallyAdjustContentInsets={false}
+        scrollEventThrottle={200}
+       >
+        {makeData}
+      </ScrollView>
+        
        <Button title ="Get Started!" onPress={this.onPressFeed.bind(this)}    
         />
           
@@ -276,15 +296,32 @@ const styles = StyleSheet.create({
    picker: {
     width: 150,
   },
+  scrollView: {
+    margin: 10,
+  },
+  scrollItem: {
+     margin: 10,
+    marginBottom: 5,
+  },
   welcome: {
     fontSize: 20,
     textAlign: 'center',
     margin: 10,
   },
+   carName: {
+    fontSize: 20,
+    textAlign: 'center',
+    margin: 3,
+  },
   instructions: {
     textAlign: 'center',
     color: '#333333',
-    marginBottom: 5,
+    marginTop: 10,
+  },
+  carInstructions: {
+    textAlign: 'center',
+    color: '#333333',
+    marginTop: 20,
   },
 });
 
